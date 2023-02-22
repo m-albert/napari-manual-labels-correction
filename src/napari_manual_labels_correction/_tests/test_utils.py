@@ -11,11 +11,11 @@ def test_label_contiguos():
 
     labels_contiguous = _utils.relabel_contiguous(labels)
 
-    assert(labels[0,0] == 1)
-    assert(labels[2, 2] == 2)
-    assert(labels[3, 3] == 3)
+    assert(labels_contiguous[0,0] == 1)
+    assert(labels_contiguous[2, 2] == 2)
+    assert(labels_contiguous[3, 3] == 3)
 
-    labels = np.randint(0, 100, size=(100, 100))
+    labels = np.random.randint(0, 100, size=(100, 100))
     labels_contiguous = _utils.relabel_contiguous(labels)
     labels_contiguous_2 = _utils.relabel_contiguous(labels_contiguous)
 
@@ -24,10 +24,13 @@ def test_label_contiguos():
 
 def test_reassign_connected_components_per_label():
 
-    labels = np.randint(0, 100, size=(100, 100))
-    labels_reassigned = _utils.test_reassign_connected_components_per_label(labels)
-    labels_reassigned_2 = _utils.test_reassign_connected_components_per_label(labels_reassigned)
+    labels = np.random.randint(0, 100, size=(100, 100))
+    labels_reassigned = _utils.reassign_connected_components_per_label(labels)
+    labels_reassigned_2 = _utils.reassign_connected_components_per_label(labels_reassigned)
 
     assert(np.all(labels_reassigned == labels_reassigned_2))
 
 
+if __name__ == "__main__":
+    test_label_contiguos()
+    test_reassign_connected_components_per_label()
