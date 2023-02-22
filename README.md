@@ -7,7 +7,7 @@
 [![codecov](https://codecov.io/gh/m-albert/napari-manual-labels-correction/branch/main/graph/badge.svg)](https://codecov.io/gh/m-albert/napari-manual-labels-correction)
 [![napari hub](https://img.shields.io/endpoint?url=https://api.napari-hub.org/shields/napari-manual-labels-correction)](https://napari-hub.org/plugins/napari-manual-labels-correction)
 
-Simple functionality to rebuild labels (e.g. segmentation labels) after manual correction using napari's built-in labels manipulation tools.
+Minimalistic plugin to rebuild labels (e.g. segmentation labels) after manual correction using napari's built-in labels manipulation tools.
 
 We assume the following to be true about valid labels:
 - labels are contiguous in space, i.e. for a given label
@@ -20,6 +20,8 @@ correction steps will be included in a valid output label map:
 - additional objects: new objects have been added to the label
     map, using labels that are not necessarily unique
 - output labels are contiguous in label space
+
+![Demo](misc-data/manual-labels-correction-demo.mp4)
 
 ----------------------------------
 
