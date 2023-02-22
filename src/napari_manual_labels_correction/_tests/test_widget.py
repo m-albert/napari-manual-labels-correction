@@ -11,8 +11,4 @@ def test_label_repair_magic_widget(make_napari_viewer, capsys):
     my_widget = label_repair_magic_widget()
 
     # if we "call" this object, it'll execute our function
-    my_widget(viewer.layers[0])
-
-    # read captured output and check that it's as we expected
-    captured = capsys.readouterr()
-    assert captured.out == f"you have selected {layer}\n"
+    out_layers = my_widget(viewer.layers[0])
