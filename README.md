@@ -7,7 +7,19 @@
 [![codecov](https://codecov.io/gh/m-albert/napari-manual-labels-correction/branch/main/graph/badge.svg)](https://codecov.io/gh/m-albert/napari-manual-labels-correction)
 [![napari hub](https://img.shields.io/endpoint?url=https://api.napari-hub.org/shields/napari-manual-labels-correction)](https://napari-hub.org/plugins/napari-manual-labels-correction)
 
-Rebuild labels (e.g. segmentation) after manual correction in napari.
+Simple functionality to rebuild labels (e.g. segmentation labels) after manual correction using napari's built-in labels manipulation tools.
+
+We assume the following to be true about valid labels:
+- labels are contiguous in space, i.e. for a given label
+    there is only once connected component in the image
+
+This function will attempt to rebuild labels such that the following
+correction steps will be included in a valid output label map:
+- under-segmentation: objects have been split by drawing a line
+    between subsets of the original label
+- additional objects: new objects have been added to the label
+    map, using labels that are not necessarily unique
+- output labels are contiguous in label space
 
 ----------------------------------
 

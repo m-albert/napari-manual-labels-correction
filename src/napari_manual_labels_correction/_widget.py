@@ -8,39 +8,56 @@ Replace code below according to your needs.
 """
 from typing import TYPE_CHECKING
 
+import numpy as np
+
+from napari.types import LayerDataTuple
 from magicgui import magic_factory
-from qtpy.QtWidgets import QHBoxLayout, QPushButton, QWidget
+
+from napari_manual_labels_correction import _utils
 
 if TYPE_CHECKING:
     import napari
 
 
-class ExampleQWidget(QWidget):
-    # your QWidget.__init__ can optionally request the napari viewer instance
-    # in one of two ways:
-    # 1. use a parameter called `napari_viewer`, as done here
-    # 2. use a type annotation of 'napari.viewer.Viewer' for any parameter
-    def __init__(self, napari_viewer):
-        super().__init__()
-        self.viewer = napari_viewer
+@magic_factory(
+    label_layer=dict(label='Input Labels: '),
+    call_button="Rebuild labels",
+)
+def label_repair_magic_widget(
+        label_layer: "napari.layers.Labels",
+        ) -> LayerDataTuple:
 
-        btn = QPushButton("Click me!")
-        btn.clicked.connect(self._on_click)
+    """
+    Rebuild labels after manual correction using napari's built-in
+    labels manipulation tools.
 
-        self.setLayout(QHBoxLayout())
-        self.layout().addWidget(btn)
+    We assume the following to be true about valid labels:
+    - labels are contiguous in space. E.g. for a given label
+      there is only once connected component in the image
 
-    def _on_click(self):
-        print("napari has", len(self.viewer.layers), "layers")
+    This function will attempt to rebuild labels such that the following
+    correction steps will be included in a valid output label map:
+    - under-segmentation: objects have been split by drawing a line
+      between subsets of the original label
+    - additional objects: new objects have been added to the label
+      map, using labels that are not necessarily unique
+    - output labels are contiguous in label space
+    """
 
+    input_labels = label_layer.data
 
-@magic_factory
-def example_magic_widget(img_layer: "napari.layers.Image"):
-    print(f"you have selected {img_layer}")
+    # relabel contiguously
+    curr_labels = _utils.relabel_contiguous(input_labels)
 
+    # loop through labels and find connected components
+    curr_labels = _utils.reassign_connected_components_per_label(curr_labels)
+    
+    # relabel contiguously again
+    curr_labels = _utils.relabel_contiguous(curr_labels)
 
-# Uses the `autogenerate: true` flag in the plugin manifest
-# to indicate it should be wrapped as a magicgui to autogenerate
-# a widget.
-def example_function_widget(img_layer: "napari.layers.Image"):
-    print(f"you have selected {img_layer}")
+    out_layers = []
+    out_layers.append((curr_labels,
+                       {'name': label_layer.name + '_rebuilt'}, 'labels'))
+
+    return(out_layers)
+

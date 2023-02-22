@@ -8,8 +8,7 @@ Replace code below according to your needs.
 """
 from __future__ import annotations
 
-import numpy
-
+import numpy as np
 
 def make_sample_data():
     """Generates an image"""
@@ -18,4 +17,15 @@ def make_sample_data():
     # Check the documentation for more information about the
     # add_image_kwargs
     # https://napari.org/stable/api/napari.Viewer.html#napari.Viewer.add_image
-    return [(numpy.random.rand(512, 512), {})]
+
+    labels = np.zeros((100, 100), dtype=np.uint16)
+
+    labels[10:20, 10: 90] = 1
+    labels[30:40, 10: 90] = 1
+
+    labels[50:60, 10: 90] = 3
+    labels[50:60, 50] = 0
+
+    labels[70:80, 10: 90] = 4
+
+    return [(labels, {}, 'labels')]
