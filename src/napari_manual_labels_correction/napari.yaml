@@ -1,0 +1,28 @@
+name: napari-manual-labels-correction
+display_name: Manual Labels Correction
+contributions:
+  commands:
+    - id: napari-manual-labels-correction.make_sample_data
+      python_name: napari_manual_labels_correction._sample_data:make_sample_data
+      title: Load sample data from Manual Labels Correction
+    - id: napari-manual-labels-correction.make_qwidget
+      python_name: napari_manual_labels_correction._widget:ExampleQWidget
+      title: Make example QWidget
+    - id: napari-manual-labels-correction.make_magic_widget
+      python_name: napari_manual_labels_correction._widget:example_magic_widget
+      title: Make example magic widget
+    - id: napari-manual-labels-correction.make_func_widget
+      python_name: napari_manual_labels_correction._widget:example_function_widget
+      title: Make example function widget
+  sample_data:
+    - command: napari-manual-labels-correction.make_sample_data
+      display_name: Manual Labels Correction
+      key: unique_id.1
+  widgets:
+    - command: napari-manual-labels-correction.make_qwidget
+      display_name: Example QWidget
+    - command: napari-manual-labels-correction.make_magic_widget
+      display_name: Example Magic Widget
+    - command: napari-manual-labels-correction.make_func_widget
+      autogenerate: true
+      display_name: Example Function Widget
