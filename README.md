@@ -21,7 +21,9 @@ correction steps will be included in a valid output label map:
     map, using labels that are not necessarily unique
 - output labels are contiguous in label space
 
-![Demo](misc-data/manual-labels-correction-demo.mp4)
+</br> 
+
+![Demo](misc-data/manual-labels-correction-demo.gif)
 
 ----------------------------------
 
