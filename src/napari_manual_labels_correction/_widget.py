@@ -21,10 +21,12 @@ if TYPE_CHECKING:
 
 @magic_factory(
     label_layer=dict(label='Input Labels: '),
+    process_planes_independently=dict(label='Process planes individually: '),
     call_button="Rebuild labels",
 )
 def label_repair_magic_widget(
         label_layer: "napari.layers.Labels",
+        process_planes_independently: bool=False,
         ) -> LayerDataTuple:
 
     """
@@ -46,18 +48,44 @@ def label_repair_magic_widget(
 
     input_labels = label_layer.data
 
-    # relabel contiguously
-    curr_labels = _utils.relabel_contiguous(input_labels)
+    if process_planes_independently:
+        
+        output_labels = np.copy(input_labels)
+        
+        for t in range(input_labels.shape[0])[:]:
+            
+            curr_labels = input_labels[t]
+            
+            # relabel contiguously
+            curr_labels = _utils.relabel_contiguous(curr_labels)
 
-    # loop through labels and find connected components
-    curr_labels = _utils.reassign_connected_components_per_label(curr_labels)
-    
-    # relabel contiguously again
-    curr_labels = _utils.relabel_contiguous(curr_labels)
+            # loop through labels and find connected components
+            curr_labels = _utils.reassign_connected_components_per_label(curr_labels)
+            
+            # relabel contiguously again
+            curr_labels = _utils.relabel_contiguous(curr_labels)
+
+            output_labels[t] = curr_labels
+
+    else:
+        
+        curr_labels = input_labels
+            
+        # relabel contiguously
+        curr_labels = _utils.relabel_contiguous(curr_labels)
+
+        # loop through labels and find connected components
+        curr_labels = _utils.reassign_connected_components_per_label(curr_labels)
+        
+        # relabel contiguously again
+        output_labels = _utils.relabel_contiguous(curr_labels)
 
     out_layers = []
-    out_layers.append((curr_labels,
-                       {'name': label_layer.name + '_rebuilt'}, 'labels'))
+    out_layers.append((output_labels,
+                       {'name': label_layer.name + '_rebuilt',
+                        'scale': label_layer.scale,
+                        },
+                       'labels'))
 
     return(out_layers)
 
