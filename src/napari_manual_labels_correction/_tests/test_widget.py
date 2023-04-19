@@ -3,7 +3,7 @@ import numpy as np
 from napari_manual_labels_correction import label_repair_magic_widget
 
 
-def test_label_repair_magic_widget(make_napari_viewer, capsys):
+def test_label_repair_magic_widget(make_napari_viewer):
     viewer = make_napari_viewer()
     layer = viewer.add_labels(np.random.randint(0, 100, (10, 10)))
 

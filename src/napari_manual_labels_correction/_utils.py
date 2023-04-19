@@ -56,6 +56,23 @@ def reassign_connected_components_per_label(labels):
     return output_labels
 
 
+def process_labels(labels):
+    """
+    Perform full correction
+    """
+
+    # relabel contiguously
+    labels = relabel_contiguous(labels)
+
+    # loop through labels and find connected components
+    labels = reassign_connected_components_per_label(labels)
+    
+    # relabel contiguously again
+    labels = relabel_contiguous(labels)
+
+    return labels
+
+
 if __name__ == "__main__":
 
     labels = np.array([0, 1, 1, 0, 3, 3, 0, 3, 3, 0])

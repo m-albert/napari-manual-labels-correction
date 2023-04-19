@@ -18,16 +18,19 @@ from napari_manual_labels_correction import _utils
 if TYPE_CHECKING:
     import napari
 
-
 @magic_factory(
     label_layer=dict(label='Input Labels: '),
-    process_planes_independently=dict(label='Process planes individually: '),
+    process_only_current_2d_plane=dict(label='Process only visible 2D plane: '),
+    # modify_in_place=dict(label='Modify labels in place: '),
     call_button="Rebuild labels",
 )
 def label_repair_magic_widget(
+        viewer: 'napari.viewer.Viewer',
         label_layer: "napari.layers.Labels",
-        process_planes_independently: bool=False,
-        ) -> LayerDataTuple:
+        process_only_current_2d_plane: bool=True,
+        # modify_in_place: bool=True,
+):
+        # ) -> LayerDataTuple:
 
     """
     Rebuild labels after manual correction using napari's built-in
@@ -46,46 +49,37 @@ def label_repair_magic_widget(
     - output labels are contiguous in label space
     """
 
-    input_labels = label_layer.data
+    input_labels = label_layer.data#.squeeze()
 
-    if process_planes_independently:
-        
-        output_labels = np.copy(input_labels)
-        
-        for t in range(input_labels.shape[0])[:]:
-            
-            curr_labels = input_labels[t]
-            
-            # relabel contiguously
-            curr_labels = _utils.relabel_contiguous(curr_labels)
+    if process_only_current_2d_plane:
 
-            # loop through labels and find connected components
-            curr_labels = _utils.reassign_connected_components_per_label(curr_labels)
-            
-            # relabel contiguously again
-            curr_labels = _utils.relabel_contiguous(curr_labels)
-
-            output_labels[t] = curr_labels
+      current_step = viewer.dims.current_step[:-2]
+      curr_labels = input_labels[tuple(current_step)]
 
     else:
-        
-        curr_labels = input_labels
-            
-        # relabel contiguously
-        curr_labels = _utils.relabel_contiguous(curr_labels)
+      
+      curr_labels = input_labels
 
-        # loop through labels and find connected components
-        curr_labels = _utils.reassign_connected_components_per_label(curr_labels)
-        
-        # relabel contiguously again
-        output_labels = _utils.relabel_contiguous(curr_labels)
+    processed_labels = _utils.process_labels(curr_labels.squeeze())
 
-    out_layers = []
-    out_layers.append((output_labels,
-                       {'name': label_layer.name + '_rebuilt',
-                        'scale': label_layer.scale,
-                        },
-                       'labels'))
+    if process_only_current_2d_plane:
+       
+      input_labels[tuple(current_step)] = processed_labels
 
-    return(out_layers)
+    else:
+       
+      input_labels[:] = processed_labels
+
+    label_layer.refresh()
+
+    return
+
+    # out_layers = []
+    # out_layers.append((output_labels,
+    #                    {'name': label_layer.name + '_rebuilt',
+    #                     'scale': label_layer.scale,
+    #                     },
+    #                    'labels'))
+
+    # return(out_layers)
 
