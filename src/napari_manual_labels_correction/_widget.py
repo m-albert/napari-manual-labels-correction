@@ -139,7 +139,7 @@ def label_split_magic_widget(
         # label_coords on one side of the line will have positive dot product
         # and those on the other side will have negative dot product
 
-        new_label = np.max(input_labels) + 1
+        new_label = np.max(curr_labels) + 1
 
         curr_labels[tuple(label_coords[dot_products > 0].T)] = new_label
       
