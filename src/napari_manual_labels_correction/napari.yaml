@@ -5,13 +5,18 @@ contributions:
     - id: napari-manual-labels-correction.make_sample_data
       python_name: napari_manual_labels_correction._sample_data:make_sample_data
       title: Load sample data from Manual Labels Correction
-    - id: napari-manual-labels-correction.make_magic_widget
+    - id: napari-manual-labels-correction.make_magic_widget_repair
       python_name: napari_manual_labels_correction._widget:label_repair_magic_widget
+      title: Make example magic widget
+    - id: napari-manual-labels-correction.make_magic_widget_split
+      python_name: napari_manual_labels_correction._widget:label_split_magic_widget
       title: Make example magic widget
   sample_data:
     - command: napari-manual-labels-correction.make_sample_data
       display_name: Manual Labels Correction
       key: unique_id.1
   widgets:
-    - command: napari-manual-labels-correction.make_magic_widget
-      display_name: Rebuild labels after manual correction
+    - command: napari-manual-labels-correction.make_magic_widget_repair
+      display_name: Reassign unique labels
+    - command: napari-manual-labels-correction.make_magic_widget_split
+      display_name: Split labels (2D)

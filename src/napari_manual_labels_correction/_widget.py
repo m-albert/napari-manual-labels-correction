@@ -10,7 +10,7 @@ from typing import TYPE_CHECKING
 
 import numpy as np
 
-from napari.types import LayerDataTuple
+from napari.utils import notifications
 from magicgui import magic_factory
 
 from napari_manual_labels_correction import _utils
@@ -74,12 +74,77 @@ def label_repair_magic_widget(
 
     return
 
-    # out_layers = []
-    # out_layers.append((output_labels,
-    #                    {'name': label_layer.name + '_rebuilt',
-    #                     'scale': label_layer.scale,
-    #                     },
-    #                    'labels'))
 
-    # return(out_layers)
+@magic_factory(
+    label_layer=dict(label='Input Labels: '),
+    shapes_layer=dict(label='Input Lines: '),
+    call_button="Split labels",
+)
+def label_split_magic_widget(
+        viewer: 'napari.viewer.Viewer',
+        label_layer: "napari.layers.Labels",
+        shapes_layer: "napari.layers.Shapes",
+):
+    """
+    Split 2D labels
+    """
 
+    if shapes_layer is None:
+      notifications.show_info('No lines drawn. Create (or select) a shapes layer and draw lines on it.')
+      return
+
+    if len(shapes_layer.data) == 0:
+      notifications.show_info('No lines drawn. To split labels, draw lines on a shapes layer.')
+      return
+
+    if not np.all([st == 'line' for st in shapes_layer.shape_type]):
+      raise ValueError('Shapes layer must contain only lines')
+
+    input_labels = label_layer.data
+
+    current_step = viewer.dims.current_step[:-2]
+    curr_labels = input_labels[tuple(current_step)]
+
+    
+    masks = shapes_layer.to_masks()
+    for iline, line in enumerate(shapes_layer.data):
+
+      affected_labels = curr_labels[np.where(masks[iline][:curr_labels.shape[0], :curr_labels.shape[1]])]
+
+      affected_labels_unique = np.unique(affected_labels[affected_labels>0])
+      # if len(affected_labels_unique) > 1:
+      #   notifications.show_error('Lines must split only one label')
+      #   return
+            
+      line_endpoints = np.array([
+         shapes_layer.world_to_data(shapes_layer.data[iline][i])
+         for i in range(2)])
+      
+      # compute normal vector to line
+      line_vector = line_endpoints[1] - line_endpoints[0]
+      line_vector /= np.linalg.norm(line_vector)
+      normal_vector = np.array([-line_vector[1], line_vector[0]])
+
+      for affected_label in affected_labels_unique:
+      
+        label_coords = np.where(curr_labels == affected_label)
+        label_coords = np.array(label_coords).T
+
+        # separate label_coords into two sets
+        # based on which side of the line they are on
+        # compute dot product of label_coords with normal vector
+
+        dot_products = np.dot(label_coords - line_endpoints[0], normal_vector)
+
+        # label_coords on one side of the line will have positive dot product
+        # and those on the other side will have negative dot product
+
+        new_label = np.max(input_labels) + 1
+
+        curr_labels[tuple(label_coords[dot_products > 0].T)] = new_label
+      
+    shapes_layer.data = []
+
+    label_layer.refresh()
+
+    return
